@@ -1,4 +1,7 @@
 package com.rental.rental_property_management.models;
+import com.rental.rental_property_management.models.PropertyType;
+import com.rental.rental_property_management.models.PropertyStatus;
+
 
 import jakarta.persistence.*;
 import java.util.List;
