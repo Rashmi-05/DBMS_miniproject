@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title th:text="${property.title}">Property Details</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2rem; }
+        .gallery img { width: 300px; height: 200px; object-fit: cover; margin: 5px; border-radius: 6px; }
+    </style>
+</head>
+<body>
+<h1 th:text="${property.title}">Property Title</h1>
+<p><strong>Type:</strong> <span th:text="${property.type}"></span></p>
+<p><strong>City:</strong> <span th:text="${property.city}"></span></p>
+<p><strong>Address:</strong> <span th:text="${property.address}"></span></p>
+<p><strong>Price:</strong> ₹<span th:text="${property.price}"></span></p>
+
+<div class="gallery">
+    <div th:each="img : ${property.images}">
+        <img th:src="${img.imageUrl}" alt="Property Image" />
+    </div>
+</div>
+
+<a href="/browse">← Back to Browse</a>
+</body>
+</html>
