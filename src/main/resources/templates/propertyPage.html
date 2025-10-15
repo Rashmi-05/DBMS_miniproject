@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Property Details</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: #667eea;
+        }
+
+        .property-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .property-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 2rem;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .property-title-section {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .property-title {
+            font-size: 2.5rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .property-address {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .property-price {
+            font-size: 2rem;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .slideshow-container {
+            position: relative;
+            width: 100%;
+            height: 450px;
+            background: #000;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .slide {
+            display: none;
+            width: 100%;
+            height: 100%;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        .slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .thumbnail-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            min-width: 400px;
+        }
+
+        .thumbnail {
+            width: 100%;
+            height: 100px;
+            overflow: hidden;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .thumbnail:hover {
+            border-color: #667eea;
+            transform: scale(1.05);
+        }
+
+        .thumbnail.active {
+            border-color: #667eea;
+        }
+
+        .thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .property-details {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .detail-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .detail-icon svg {
+            width: 24px;
+            height: 24px;
+            stroke: white;
+            fill: none;
+            stroke-width: 2;
+        }
+
+        .detail-text h3 {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 0.25rem;
+        }
+
+        .detail-text p {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 0.5rem;
+        }
+
+        .description {
+            line-height: 1.8;
+            color: #555;
+            margin-bottom: 2rem;
+        }
+
+        .features-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            list-style: none;
+        }
+
+        .features-list li {
+            padding: 0.75rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .features-list li::before {
+            content: "✓";
+            color: #667eea;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .contact-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2rem;
+            border-radius: 15px;
+            color: white;
+            text-align: center;
+        }
+
+        .contact-btn {
+            padding: 1rem 3rem;
+            background: white;
+            color: #667eea;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 1rem 0.5rem;
+        }
+
+        .contact-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        @media (max-width: 1024px) {
+            .slideshow-container {
+                height: 350px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .slideshow-container {
+                height: 300px;
+            }
+
+            .property-title {
+                font-size: 1.8rem;
+            }
+
+            .thumbnail-grid {
+                grid-template-columns: repeat(2, 1fr);
+                min-width: 100%;
+            }
+
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <a href="#" class="logo">PropFinder</a>
+    <ul class="nav-links">
+        <li><a href="#">Home</a></li>
+        <li><a href="#">Search</a></li>
+        <li><a href="#">Settings</a></li>
+        <li><a href="#">Profile</a></li>
+    </ul>
+</nav>
+
+<div class="slideshow-container">
+    <div class="slide active">
+        <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1600" alt="Property Image 1">
+    </div>
+    <div class="slide">
+        <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1600" alt="Property Image 2">
+    </div>
+    <div class="slide">
+        <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1600" alt="Property Image 3">
+    </div>
+    <div class="slide">
+        <img src="https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=1600" alt="Property Image 4">
+    </div>
+</div>
+
+<div class="property-container">
+    <div class="property-header">
+        <div class="property-title-section">
+            <h1 class="property-title">Luxury Modern Villa</h1>
+            <p class="property-address">123 Palm Beach Drive, Miami, FL 33139</p>
+            <p class="property-price">$2,450,000</p>
+        </div>
+
+        <div class="thumbnail-grid">
+            <div class="thumbnail active" onclick="goToSlide(0)">
+                <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=400" alt="Thumb 1">
+            </div>
+            <div class="thumbnail" onclick="goToSlide(1)">
+                <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=400" alt="Thumb 2">
+            </div>
+            <div class="thumbnail" onclick="goToSlide(2)">
+                <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400" alt="Thumb 3">
+            </div>
+            <div class="thumbnail" onclick="goToSlide(3)">
+                <img src="https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=400" alt="Thumb 4">
+            </div>
+        </div>
+    </div>
+
+    <div class="property-details">
+
+
+        <h2 class="section-title">Description</h2>
+        <p class="description">
+            Welcome to this stunning luxury villa located in the heart of Miami Beach. This contemporary masterpiece
+            features high-end finishes throughout, with an open-concept design that seamlessly blends indoor and outdoor living.
+            The gourmet kitchen boasts top-of-the-line appliances, custom cabinetry, and a large center island perfect for entertaining.
+            Floor-to-ceiling windows flood the space with natural light and offer breathtaking views of the surrounding landscape.
+            <br><br>
+            The master suite is a true retreat, complete with a spa-like bathroom, walk-in closet, and private balcony.
+            Additional features include smart home technology, a resort-style pool, outdoor kitchen, and beautifully landscaped grounds.
+            This property offers the ultimate in luxury living and is located just minutes from world-class dining, shopping, and beaches.
+        </p>
+
+
+    </div>
+
+    <div class="contact-section">
+        <h2>Interested in this property?</h2>
+        <p style="margin: 1rem 0;">Contact us today to schedule a viewing or get more information</p>
+        <button class="contact-btn">Schedule Viewing</button>
+        <button class="contact-btn">Contact Agent</button>
+    </div>
+</div>
+
+<script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const thumbnails = document.querySelectorAll('.thumbnail');
+
+    function showSlide(n) {
+        slides.forEach(slide => slide.classList.remove('active'));
+        thumbnails.forEach(thumb => thumb.classList.remove('active'));
+
+        if (n >= slides.length) currentSlide = 0;
+        if (n < 0) currentSlide = slides.length - 1;
+
+        slides[currentSlide].classList.add('active');
+        thumbnails[currentSlide].classList.add('active');
+    }
+
+    function goToSlide(n) {
+        currentSlide = n;
+        showSlide(currentSlide);
+    }
+</script>
+
+</body>
+</html>
