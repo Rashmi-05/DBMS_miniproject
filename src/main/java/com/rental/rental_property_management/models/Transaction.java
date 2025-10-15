@@ -12,31 +12,34 @@ public class Transaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long transactionId;
 
-    @ManyToOne
-    @JoinColumn(name = "property_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "property_id", nullable = false) // MUST link to a Property
     private Property property;
 
-    @ManyToOne
-    @JoinColumn(name = "buyer_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "buyer_id", nullable = false) // MUST link to a Buyer
     private User buyer;
 
-    @ManyToOne
-    @JoinColumn(name = "seller_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "seller_id", nullable = false) // MUST link to a Seller
     private User seller;
 
-    private Double amount;
+    @Column(nullable = false)
+    private Double amount; // MUST have an amount
 
-    private LocalDateTime transactionDate = LocalDateTime.now();
+    @Column(nullable = false)
+    private LocalDateTime transactionDate = LocalDateTime.now(); // MUST have a date
 
     @Enumerated(EnumType.STRING)
-    private PaymentMethod paymentMethod;
+    @Column(nullable = false)
+    private PaymentMethod paymentMethod; // MUST have a method
 
     @Enumerated(EnumType.STRING)
-    private TransactionType transactionType;
+    @Column(nullable = false)
+    private TransactionType transactionType; // MUST have a type
 
     @OneToMany(mappedBy = "transaction", cascade = CascadeType.ALL)
     private List<Payment> payments;
 
-    // Getters and Setters
-    // ...
+    // Getters and Setters omitted for brevity
 }

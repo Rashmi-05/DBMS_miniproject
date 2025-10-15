@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title th:text="${property.title} + ' - PropFinder'">Property Details</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+
+<nav>
+    <a href="/" th:href="@{/}">Home</a> |
+    <a href="/browse" th:href="@{/browse}">Browse</a>
+</nav>
+
+<h1 th:text="${property.title}">Property Title</h1>
+<p th:text="${property.address + ', ' + property.city}">Address</p>
+<p><strong>Price:</strong> <span th:text="${property.price}">₹0</span></p>
+<p><strong>Type:</strong> <span th:text="${property.type}">House</span></p>
+<p><strong>Status:</strong> <span th:text="${property.status}">Available</span></p>
+<p><strong>Bedrooms:</strong> <span th:text="${property.beds}">0</span></p>
+<p><strong>Bathrooms:</strong> <span th:text="${property.baths}">0</span></p>
+<p><strong>Area:</strong> <span th:text="${property.area}">0 sqft</span></p>
+
+<h2>Images</h2>
+<div th:if="${images != null}">
+    <div th:each="img : ${images}">
+        <img th:src="${img.imageUrl}" alt="Property Image" style="width:300px; margin:5px;"/>
+    </div>
+</div>
+
+<p><strong>Listed By:</strong> <span th:text="${property.listedBy.username}">Seller Name</span></p>
+
+</body>
+</html>

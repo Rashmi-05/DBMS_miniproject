@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Browse Properties - PropFinder</title>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(8px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo { font-size: 1.4rem; color: #667eea; font-weight: 700; text-decoration: none; }
+
+        .nav-links { display: flex; gap: 1rem; list-style: none; align-items: center; }
+        .nav-links a { color: #333; text-decoration: none; font-weight: 500; }
+        .nav-links a:hover { color: #667eea; }
+
+        .search-section {
+            background: linear-gradient(135deg,#667eea 0%, #764ba2 100%);
+            padding: 1.25rem 1rem;
+            color: white;
+        }
+        .search-container { max-width: 1200px; margin: 0 auto; }
+
+        .search-title { font-size: 2rem; text-align: center; margin-bottom: 0.25rem; }
+        .search-subtitle { text-align: center; opacity: 0.95; margin-bottom: 1rem; }
+
+        .search-bar { display:flex; gap:1rem; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; align-items: center; justify-content:center; }
+        .search-input-wrapper { position: relative; min-width: 280px; flex: 1; max-width: 720px; }
+        .search-input {
+            width: 100%;
+            padding: 0.9rem 1rem 0.9rem 3rem;
+            border-radius: 999px;
+            border: none;
+            font-size: 1rem;
+            outline: none;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+        }
+        .search-icon { position:absolute; left: 12px; top: 50%; transform: translateY(-50%); width:18px; height:18px; stroke: #667eea; fill:none; stroke-width:1.6; }
+        .search-btn {
+            padding: 0.85rem 1.6rem;
+            border-radius: 999px;
+            border: none;
+            font-weight: 700;
+            cursor:pointer;
+            background: white;
+            color: #667eea;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+        }
+
+        .filters-container {
+            max-width: 1200px;
+            margin: 1rem auto;
+            padding: 1.25rem;
+        }
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit,minmax(200px,1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .filter-group label { display:block; font-weight:600; color:#444; margin-bottom:6px; font-size:0.9rem; }
+        .filter-select, .filter-input { width:100%; padding:0.6rem; border-radius:8px; border:1px solid #e2e2e2; font-size:0.95rem; outline:none; }
+
+        .filter-actions { display:flex; gap:0.75rem; justify-content:flex-end; }
+        .btn-apply { background: linear-gradient(135deg,#667eea,#764ba2); color: #fff; border:none; padding:0.6rem 1rem; border-radius:8px; cursor:pointer; font-weight:600; }
+        .btn-reset { border:1px solid #667eea; background:#fff; color:#667eea; padding:0.6rem 1rem; border-radius:8px; cursor:pointer; font-weight:600; }
+
+        .content { max-width:1200px; margin: 2rem auto; padding: 0 1rem; }
+        .results-header { margin-bottom:1rem; display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap; }
+        .results-header h2 { font-size:1.4rem; color:#222; }
+
+        .cards-grid { display:flex; flex-wrap:wrap; gap:1.25rem; }
+        .card {
+            width: calc(33.333% - 0.833rem);
+            background: #fff;
+            border-radius:12px;
+            overflow: hidden;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+            display:flex;
+            flex-direction:column;
+        }
+        .card img {
+            width:100%;
+            height:200px;
+            object-fit:cover;
+            display:block;
+        }
+        .card-body { padding: 0.9rem 1rem 1rem; display:flex; flex-direction:column; gap:0.5rem; flex:1; }
+        .card-title { font-size:1rem; font-weight:700; color:#222; }
+        .card-sub { font-size:0.9rem; color:#555; }
+        .price { color:#1f4ed8; font-weight:800; font-size:1.1rem; }
+        .meta-row { display:flex; justify-content:space-between; align-items:center; margin-top:auto; gap:0.5rem; }
+
+        .badge { padding:0.25rem 0.5rem; border-radius:6px; font-weight:700; font-size:0.8rem; color:#fff; }
+        .badge-sale { background: #ff7b54; }
+        .badge-rent { background: #10b981; }
+
+        .view-btn { text-decoration:none; padding:0.45rem 0.7rem; border-radius:8px; background:#667eea; color:#fff; font-weight:700; font-size:0.9rem; }
+
+        .no-results { text-align:center; padding:2rem; background:#fff; border-radius:10px; box-shadow: 0 6px 18px rgba(0,0,0,0.04); }
+
+        /* pagination */
+        .pagination { display:flex; gap:0.5rem; justify-content:center; margin-top:1.5rem; flex-wrap:wrap; }
+        .page-link { padding:0.45rem 0.7rem; border-radius:6px; border:1px solid #e2e2e2; background:#fff; cursor:pointer; text-decoration:none; color:#333; }
+        .page-link.active { background:#667eea; color:#fff; border-color:transparent; }
+
+        @media (max-width: 992px) {
+            .card { width: calc(50% - 0.625rem); }
+            .search-title { font-size: 1.6rem; }
+        }
+        @media (max-width: 640px) {
+            .nav-links { display:none; }
+            .card { width: 100%; }
+            .search-bar { flex-direction:column; }
+            .search-input { padding-left: 3rem; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <a class="logo" href="#" th:href="@{/}">PropFinder</a>
+    <ul class="nav-links">
+        <li><a th:href="@{/}">Home</a></li>
+        <li><a th:href="@{/browse}">Browse</a></li>
+        <li><a th:href="@{/profile}">Profile</a></li>
+    </ul>
+</nav>
+
+<section class="search-section">
+    <div class="search-container">
+        <div class="search-title">Find a place you'll love</div>
+        <div class="search-subtitle">Search by city, neighborhood or ZIP — filter by price, beds and more.</div>
+
+        <!-- Search + filters form: uses GET so query params show in URL -->
+        <form th:action="@{/browse}" method="get" id="searchForm">
+            <div class="search-bar">
+                <div class="search-input-wrapper">
+                    <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <circle cx="11" cy="11" r="7"></circle>
+                        <path d="M21 21l-4.35-4.35"></path>
+                    </svg>
+                    <input
+                            name="q"
+                            type="text"
+                            class="search-input"
+                            placeholder="Search by location, city, or ZIP code..."
+                            th:value="${param.q}"
+                    />
+                </div>
+
+                <button type="submit" class="search-btn">Search</button>
+            </div>
+
+            <div class="filters-container">
+                <div class="filters-grid">
+                    <div class="filter-group">
+                        <label for="propertyType">Property Type</label>
+                        <select id="propertyType" name="type" class="filter-select" th:value="${param.type}">
+                            <option value="">All Types</option>
+                            <option value="house" th:selected="${param.type == 'house'}">House</option>
+                            <option value="apartment" th:selected="${param.type == 'apartment'}">Apartment</option>
+                            <option value="condo" th:selected="${param.type == 'condo'}">Condo</option>
+                            <option value="townhouse" th:selected="${param.type == 'townhouse'}">Townhouse</option>
+                            <option value="villa" th:selected="${param.type == 'villa'}">Villa</option>
+                            <option value="land" th:selected="${param.type == 'land'}">Land</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="listingType">Listing Type</label>
+                        <select id="listingType" name="listing" class="filter-select">
+                            <option value="">All Listings</option>
+                            <option value="sale" th:selected="${param.listing == 'sale'}">For Sale</option>
+                            <option value="rent" th:selected="${param.listing == 'rent'}">For Rent</option>
+                            <option value="lease" th:selected="${param.listing == 'lease'}">For Lease</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="bedrooms">Bedrooms</label>
+                        <select id="bedrooms" name="beds" class="filter-select">
+                            <option value="">Any</option>
+                            <option value="1" th:selected="${param.beds == '1'}">1+</option>
+                            <option value="2" th:selected="${param.beds == '2'}">2+</option>
+                            <option value="3" th:selected="${param.beds == '3'}">3+</option>
+                            <option value="4" th:selected="${param.beds == '4'}">4+</option>
+                            <option value="5" th:selected="${param.beds == '5'}">5+</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="bathrooms">Bathrooms</label>
+                        <select id="bathrooms" name="baths" class="filter-select">
+                            <option value="">Any</option>
+                            <option value="1" th:selected="${param.baths == '1'}">1+</option>
+                            <option value="2" th:selected="${param.baths == '2'}">2+</option>
+                            <option value="3" th:selected="${param.baths == '3'}">3+</option>
+                            <option value="4" th:selected="${param.baths == '4'}">4+</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="minPrice">Min Price (₹)</label>
+                        <input id="minPrice" name="minPrice" type="number" class="filter-input" th:value="${param.minPrice}" placeholder="0"/>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="maxPrice">Max Price (₹)</label>
+                        <input id="maxPrice" name="maxPrice" type="number" class="filter-input" th:value="${param.maxPrice}" placeholder="Any"/>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="minArea">Min Area (sq ft)</label>
+                        <input id="minArea" name="minArea" type="number" class="filter-input" th:value="${param.minArea}" placeholder="0"/>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="maxArea">Max Area (sq ft)</label>
+                        <input id="maxArea" name="maxArea" type="number" class="filter-input" th:value="${param.maxArea}" placeholder="Any"/>
+                    </div>
+                </div>
+
+                <div class="filter-actions">
+                    <button type="button" class="btn-reset" id="resetFilters">Reset Filters</button>
+                    <button type="submit" class="btn-apply">Apply Filters</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+
+<div class="content">
+    <div class="results-header">
+        <h2>Search Results</h2>
+
+        <!-- optional: show count if provided -->
+        <div th:if="${properties != null}">
+            <span th:text="${#lists.size(properties)} + ' properties'">0 properties</span>
+        </div>
+    </div>
+
+    <div th:if="${properties == null or #lists.isEmpty(properties)}" class="no-results">
+        <p style="font-weight:700; margin-bottom:8px;">No properties found</p>
+        <p>Try adjusting your search or filters.</p>
+    </div>
+
+    <div class="cards-grid" th:if="${properties != null and !#lists.isEmpty(properties)}">
+        <!-- Each property card -->
+        <div class="card" th:each="property : ${properties}">
+            <!-- If property.imageUrl is empty, you can use a placeholder -->
+            <a th:href="@{'/property/' + ${property.id}}" style="text-decoration:none; color:inherit;">
+                <img th:src="${property.imageUrl != null && property.imageUrl != '' ? property.imageUrl : '/images/placeholder-property.jpg'}"
+                     th:alt="${property.title}" />
+
+                <div class="card-body">
+                    <div style="display:flex; justify-content:space-between; gap:0.5rem; align-items:center;">
+                        <div>
+                            <div class="card-title" th:text="${property.title}">Beautiful house</div>
+                            <div class="card-sub" th:text="${property.location}">Location</div>
+                        </div>
+
+                        <div style="text-align:right;">
+                            <div th:if="${property.listing == 'sale'}" class="badge badge-sale">FOR SALE</div>
+                            <div th:if="${property.listing == 'rent'}" class="badge badge-rent">FOR RENT</div>
+                            <div th:if="${property.listing == 'lease'}" class="badge badge-rent">LEASE</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:0.6rem;">
+                        <div class="price" th:text="${#numbers.formatInteger(property.price, LocaleContextHolder.locale)} + ' /' + (property.listing == 'rent' ? 'month' : '')">₹ 50,00,000</div>
+                        <div class="card-sub" th:text="${property.beds} + ' bd • ' + property.baths + ' ba • ' + property.area + ' sqft'">3 bd • 2 ba • 1200 sqft</div>
+                    </div>
+
+                    <div class="meta-row" style="margin-top:10px;">
+                        <a th:href="@{'/property/' + ${property.id}}" class="view-btn">View Details</a>
+                        <div style="font-size:0.85rem; color:#666;" th:text="${property.postedAgo != null ? property.postedAgo : ''}">2 days ago</div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Simple pagination (optional) - works if you pass 'page' object -->
+    <div th:if="${page != null and page.totalPages > 1}" class="pagination" aria-label="Pagination">
+        <a th:href="@{/browse(page=${page.number - 1}, q=${param.q}, type=${param.type}, listing=${param.listing}, beds=${param.beds}, baths=${param.baths}, minPrice=${param.minPrice}, maxPrice=${param.maxPrice})}"
+           th:classappend="${page.first} ? 'page-link disabled' : 'page-link'">Previous</a>
+
+        <a th:each="i : ${#numbers.sequence(0, page.totalPages - 1)}"
+           th:href="@{/browse(page=${i}, q=${param.q}, type=${param.type}, listing=${param.listing}, beds=${param.beds}, baths=${param.baths}, minPrice=${param.minPrice}, maxPrice=${param.maxPrice})}"
+           th:classappend="${page.number == i} ? 'page-link active' : 'page-link'"
+           th:text="${i + 1}">1</a>
+
+        <a th:href="@{/browse(page=${page.number + 1}, q=${param.q}, type=${param.type}, listing=${param.listing}, beds=${param.beds}, baths=${param.baths}, minPrice=${param.minPrice}, maxPrice=${param.maxPrice})}"
+           th:classappend="${page.last} ? 'page-link disabled' : 'page-link'">Next</a>
+    </div>
+</div>
+
+<script>
+    // Reset button clears inputs and submits (so GET request returns default results)
+    document.getElementById('resetFilters').addEventListener('click', function () {
+        const form = document.getElementById('searchForm');
+        // For safety, clear only known inputs
+        ['q','type','listing','beds','baths','minPrice','maxPrice','minArea','maxArea','page'].forEach(function(name){
+            const el = form.elements[name];
+            if (el) {
+                if (el.tagName === 'SELECT' || el.tagName === 'INPUT') el.value = '';
+            }
+        });
+        form.submit();
+    });
+</script>
+
+</body>
+</html>
